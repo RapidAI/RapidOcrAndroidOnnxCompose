@@ -1,4 +1,4 @@
-package com.benjaminwan.ocr
+package com.benjaminwan.ocr.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -10,16 +10,18 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.benjaminwan.ocr.ui.theme.RapidOcrAndroidOnnxComposeTheme
+import androidx.navigation.compose.rememberNavController
+import com.benjaminwan.ocr.screens.MainNavHost
+import com.benjaminwan.ocr.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            RapidOcrAndroidOnnxComposeTheme {
-                // A surface container using the 'background' color from the theme
+            val navController = rememberNavController()
+            AppTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background) {
-                    Greeting("Android")
+                    MainNavHost(navController)
                 }
             }
         }
@@ -34,7 +36,7 @@ fun Greeting(name: String) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    RapidOcrAndroidOnnxComposeTheme {
+    AppTheme {
         Greeting("Android")
     }
 }

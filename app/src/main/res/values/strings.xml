@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">RapidOcrAndroidOnnxCompose</string>
+    <string name="screen_main">主菜单</string>
+    <string name="screen_gallery">相册识别</string>
+    <string name="screen_camera">相机识别</string>
+    <string name="screen_imei">IMEI识别</string>
+    <string name="screen_id_card">身份证识别</string>
+    <string name="screen_plate">车牌识别</string>
+    <string name="screen_about">关于</string>
+
+    <string name="common_close">关闭</string>
 </resources>
