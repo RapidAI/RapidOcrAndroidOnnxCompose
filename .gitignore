@@ -88,4 +88,4 @@ lint/tmp/
 other/~*.xlsx
 
 # opencv
-opencv
+sdk
