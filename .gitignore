@@ -86,3 +86,6 @@ lint/tmp/
 .DS_Store
 ~*.xlsx
 other/~*.xlsx
+
+# opencv
+opencv
