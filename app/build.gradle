@@ -66,6 +66,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     //navigation
     implementation 'androidx.navigation:navigation-compose:2.5.3'
+    //Image loading library
+    implementation 'io.coil-kt:coil-compose:2.2.2'
     //Logger
     implementation 'com.orhanobut:logger:2.2.0'
     //Mvrx
