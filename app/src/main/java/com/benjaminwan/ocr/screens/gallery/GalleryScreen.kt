@@ -20,6 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import com.airbnb.mvrx.Fail
+import com.airbnb.mvrx.Loading
+import com.airbnb.mvrx.Success
+import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.benjaminwan.ocr.screens.CommonScaffold
@@ -88,7 +92,9 @@ private fun BottomButton(vm: GalleryViewModel, state: GalleryState) {
             if (uri != null) vm.setUri(uri)
         }
         Button(
-            modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 4.dp),
             onClick = {
                 actionOpenPicker.launch("image/*")
             },
@@ -96,13 +102,17 @@ private fun BottomButton(vm: GalleryViewModel, state: GalleryState) {
             Text(text = "Open")
         }
         Button(
-            modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
-            onClick = { /*TODO*/ },
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 4.dp),
+            onClick = { vm.detect() },
         ) {
             Text(text = "Detect")
         }
         Button(
-            modifier = Modifier.weight(1f).padding(horizontal = 4.dp),
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 4.dp),
             onClick = { /*TODO*/ },
         ) {
             Text(text = "Benchmark")
@@ -204,7 +214,25 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
 
 @Composable
 private fun ResultView(vm: GalleryViewModel, state: GalleryState) {
-
+    when (state.detectRequest) {
+        Uninitialized -> {}
+        is Loading -> {}
+        is Fail -> {}
+        is Success -> {
+            Image(
+                painter = rememberAsyncImagePainter(
+                    ImageRequest
+                        .Builder(LocalContext.current)
+                        .data(data = state.detectRequest()!!.boxImg)
+                        .build()
+                ),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentScale = ContentScale.Fit
+            )
+        }
+    }
 }
 
 @Composable

@@ -5,16 +5,23 @@ import android.net.Uri
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.ViewModelContext
+import com.benjaminwan.ocr.app.App
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxScoreThreshRange
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxThreshRange
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.maxSideLenRange
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.paddingRange
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.unClipRatioRange
+import com.benjaminwan.ocr.utils.decodeUri
+import com.benjaminwan.ocrlibrary.OcrEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class GalleryViewModel(
     initialState: GalleryState,
     private val context: Context,
 ) : MavericksViewModel<GalleryState>(initialState) {
+
+    private val ocrEngine = OcrEngine(App.INST.applicationContext)
 
     init {
 
@@ -67,6 +74,25 @@ class GalleryViewModel(
 
     fun setMostAngle(input: Boolean) {
         setState { copy(mostAngle = input) }
+    }
+
+    fun detect() = suspend {
+        val state = awaitState()
+        val maxSideLen = state.maxSideLen.toInt()
+        val padding = state.padding.toInt()
+        val uri = state.imageUri ?: throw Exception("uri is null")
+        val bmp = context.decodeUri(uri) ?: throw Exception("bitmap is null")
+        withContext(Dispatchers.IO) {
+            ocrEngine.detect(bmp, maxSideLen, padding, 0.5F, 0.3F, 1.6F, true, true)
+        }
+    }
+        .execute {
+            copy(detectRequest = it)
+        }
+
+    override fun onCleared() {
+        super.onCleared()
+        ocrEngine.close()
     }
 
     companion object : MavericksViewModelFactory<GalleryViewModel, GalleryState> {

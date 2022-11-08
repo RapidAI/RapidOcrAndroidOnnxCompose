@@ -4,11 +4,12 @@ import android.net.Uri
 import com.airbnb.mvrx.Async
 import com.airbnb.mvrx.MavericksState
 import com.airbnb.mvrx.Uninitialized
+import com.benjaminwan.ocrlibrary.models.OcrResult
 
 data class GalleryState(
     val tabs: List<GalleryTab> = GalleryTab.getTabs(),
     val selectTab: GalleryTab = tabs.first(),
-    val openRequest: Async<Unit> = Uninitialized,//打开文件
+    val detectRequest: Async<OcrResult> = Uninitialized,//打开文件
     val imageUri: Uri? = null,
     val maxSideLen: String = DEFAULT_MAX_SIDE_LEN,
     val maxSideLenError: Boolean = false,

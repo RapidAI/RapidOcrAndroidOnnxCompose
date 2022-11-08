@@ -17,7 +17,7 @@ import com.benjaminwan.ocr.screens.plate.PlateScreen
 fun MainNavHost(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = Screen.Main.route,
+        startDestination = Screen.Gallery.route,
     ) {
 
         composable(
