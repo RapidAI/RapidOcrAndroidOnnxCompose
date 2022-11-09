@@ -15,7 +15,8 @@ data class OcrResult(
     val detResults: List<DetResult>,
     val clsResults: List<ClsResult>,
     val recResults: List<RecResult>,
-    val boxImg: Bitmap,
+    val boxImage: Bitmap,
+    val partImages: List<Bitmap>,
 ) : Parcelable, OcrOutput()
 
 @Parcelize

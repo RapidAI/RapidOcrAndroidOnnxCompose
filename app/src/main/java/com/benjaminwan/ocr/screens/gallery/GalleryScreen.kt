@@ -13,6 +13,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
@@ -223,7 +225,7 @@ private fun ResultView(vm: GalleryViewModel, state: GalleryState) {
                 painter = rememberAsyncImagePainter(
                     ImageRequest
                         .Builder(LocalContext.current)
-                        .data(data = state.detectRequest()!!.boxImg)
+                        .data(data = state.detectRequest()!!.boxImage)
                         .build()
                 ),
                 contentDescription = null,
@@ -231,11 +233,35 @@ private fun ResultView(vm: GalleryViewModel, state: GalleryState) {
                     .fillMaxSize(),
                 contentScale = ContentScale.Fit
             )
+
         }
     }
 }
 
 @Composable
 private fun DebugView(vm: GalleryViewModel, state: GalleryState) {
-
+    when (state.detectRequest) {
+        Uninitialized -> {}
+        is Loading -> {}
+        is Fail -> {}
+        is Success -> {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                state.detectRequest()!!.partImages.forEach { img ->
+                    item {
+                        Image(
+                            painter = BitmapPainter(img.asImageBitmap()),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            contentScale = ContentScale.FillWidth
+                        )
+                        Divider(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                }
+            }
+        }
+    }
 }

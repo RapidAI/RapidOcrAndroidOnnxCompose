@@ -94,28 +94,41 @@ class OcrEngine(context: Context) : Closeable {
         val thickness = getThickness(src)
         Logger.i("=====Start detect=====")
 
-        Logger.i("---------- step: getDetResults ----------")
+        Logger.i("---------- step: Get DetResults ----------")
         val detResults = det.getDetResults(src, s, boxScoreThresh, boxThresh, unClipRatio)
         Logger.i("$detResults")
 
-        Logger.i("---------- step: drawTextBoxes ----------")
+        Logger.i("---------- step: Draw TextBoxes ----------")
         drawTextBoxes(textBoxPaddingImg, detResults, thickness)
 
-        Logger.i("---------- step: getPartImages ----------")
+        Logger.i("---------- step: Get PartMats ----------")
+        val partMats = getPartMats(src, detResults)
+        Logger.i("$partMats")
 
         Logger.i("---------- step: getClsResults ----------")
 
         Logger.i("---------- step: Rotate partImages ----------")
 
-
+        Logger.i("---------- step: Convert BoxImg ----------")
         val outRGBA = Mat()
-        cvtColor(textBoxPaddingImg, outRGBA, COLOR_BGR2RGBA)
-        val outputImg = Bitmap.createBitmap(
+        cvtColor(textBoxPaddingImg.submat(paddingRect), outRGBA, COLOR_BGR2RGBA)
+        val boxImg = Bitmap.createBitmap(
             outRGBA.cols(), outRGBA.rows(), Bitmap.Config.ARGB_8888
         )
-        matToBitmap(outRGBA, outputImg)
+        matToBitmap(outRGBA, boxImg)
 
-        return OcrResult(detResults, emptyList(), emptyList(), outputImg)
+        Logger.i("---------- step: Convert partImages ----------")
+        val partImages = partMats.map { partMat->
+            val partMatRGBA = Mat()
+            cvtColor(partMat, partMatRGBA, COLOR_BGR2RGBA)
+            val partImage = Bitmap.createBitmap(
+                partMatRGBA.cols(), partMatRGBA.rows(), Bitmap.Config.ARGB_8888
+            )
+            matToBitmap(partMatRGBA, partImage)
+            partImage
+        }
+
+        return OcrResult(detResults, emptyList(), emptyList(), boxImg, partImages)
     }
 
 

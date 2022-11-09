@@ -2,6 +2,7 @@ package com.benjaminwan.ocrlibrary
 
 import android.graphics.Bitmap
 import androidx.core.math.MathUtils
+import com.benjaminwan.ocrlibrary.models.DetPoint
 import com.benjaminwan.ocrlibrary.models.DetResult
 import com.benjaminwan.ocrlibrary.models.ScaleParam
 import de.lighti.clipper.Clipper
@@ -10,7 +11,7 @@ import de.lighti.clipper.Path
 import de.lighti.clipper.Paths
 import org.opencv.android.Utils.matToBitmap
 import org.opencv.core.*
-import org.opencv.core.Core.mean
+import org.opencv.core.Core.*
 import org.opencv.core.CvType.CV_8UC1
 import org.opencv.core.Mat.zeros
 import org.opencv.imgproc.Imgproc.*
@@ -250,5 +251,69 @@ internal fun drawTextBoxes(boxImg: Mat, textBoxes: List<DetResult>, thickness: I
         line(boxImg, box.points[1].toCvPoint(), box.points[2].toCvPoint(), color, thickness)
         line(boxImg, box.points[2].toCvPoint(), box.points[3].toCvPoint(), color, thickness)
         line(boxImg, box.points[3].toCvPoint(), box.points[0].toCvPoint(), color, thickness)
+    }
+}
+
+
+internal fun getRotateCropImage(src: Mat, box: List<DetPoint>): Mat {
+    val points = box.map { it.toCvPoint() }
+
+    val collectX = arrayOf(box[0].x, box[1].x, box[2].x, box[3].x)
+    val collectY = arrayOf(box[0].y, box[1].y, box[2].y, box[3].y)
+    val left = collectX.min()
+    val right = collectX.max()
+    val top = collectY.min()
+    val bottom = collectY.max()
+
+    val imgCrop = src.submat(Rect(left, top, right - left, bottom - top))
+
+    for (i in points.indices) {
+        points[i].x -= left
+        points[i].y -= top
+    }
+
+    val imgCropWidth = Math.sqrt(
+        Math.pow(points[0].x - points[1].x, 2.0) + Math.pow(points[0].y - points[1].y, 2.0)
+    )
+
+    val imgCropHeight = Math.sqrt(
+        Math.pow(points[0].x - points[3].x, 2.0) + Math.pow(points[0].y - points[3].y, 2.0)
+    )
+
+    val ptsDst = arrayOf(
+        Point(0.0, 0.0),
+        Point(imgCropWidth, 0.0),
+        Point(imgCropWidth, imgCropHeight),
+        Point(0.0, imgCropHeight)
+    )
+
+    val ptsSrc = arrayOf(
+        Point(points[0].x, points[0].y),
+        Point(points[1].x, points[1].y),
+        Point(points[2].x, points[2].y),
+        Point(points[3].x, points[3].y),
+    )
+    val transformation = getPerspectiveTransform(MatOfPoint2f(*ptsSrc), MatOfPoint2f(*ptsDst))
+
+    val partImg = Mat()
+    warpPerspective(
+        imgCrop, partImg, transformation,
+        Size(imgCropWidth, imgCropHeight),
+        BORDER_REPLICATE
+    );
+
+    return if (partImg.rows() >= partImg.cols() * 1.5) {
+        val srcCopy = Mat(partImg.rows(), partImg.cols(), partImg.depth())
+        transpose(partImg, srcCopy)
+        flip(srcCopy, srcCopy, 0)
+        srcCopy
+    } else {
+        partImg
+    }
+}
+
+internal fun getPartMats(src: Mat, detResults: List<DetResult>): List<Mat> {
+    return detResults.map {
+        getRotateCropImage(src, it.points)
     }
 }
