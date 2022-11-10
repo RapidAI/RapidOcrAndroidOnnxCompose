@@ -32,7 +32,7 @@ class OcrEngine(context: Context) : Closeable {
     }
 
     private val rec by lazy {
-        Rec(ortEnv, assetManager, REC_NAME)
+        Rec(ortEnv, assetManager, REC_NAME, KEYS_NAME)
     }
 
     init {
@@ -96,7 +96,6 @@ class OcrEngine(context: Context) : Closeable {
 
         Logger.i("---------- step: Get DetResults ----------")
         val detResults = det.getDetResults(src, s, boxScoreThresh, boxThresh, unClipRatio)
-        Logger.i("$detResults")
 
         Logger.i("---------- step: Draw TextBoxes ----------")
         drawTextBoxes(textBoxPaddingImg, detResults, thickness)
@@ -104,26 +103,31 @@ class OcrEngine(context: Context) : Closeable {
         Logger.i("---------- step: Get PartMats ----------")
         val partMats = getPartMats(src, detResults)
 
+        val clsResults = if (doAngle) {
+            Logger.i("---------- step: Get ClsResults ----------")
+            val results = cls.getClsResults(partMats)
+            if (mostAngle) {
+                results.map {
+                    val sum = results.map { it.index }.sum().toFloat()
+                    val halfPercent = results.size.toFloat() / 2.0F
+                    //Logger.i("sum=$sum,halfPercent=$halfPercent")
+                    val mostAngleIndex = if (sum < halfPercent) 0 else 1
+                    it.copy(index = mostAngleIndex)
+                }
+            } else results
+        } else emptyList()
+
         val clsPartMats = if (doAngle) {
-            Logger.i("---------- step: getClsResults ----------")
-            val clsResult = cls.getClsResults(partMats, doAngle, mostAngle)
-
-            val mostClsResult = if (mostAngle) {
-                val sum = clsResult.map { it.index }.sum().toFloat()
-                val halfPercent = clsResult.size.toFloat() / 2.0F
-                //Logger.i("sum=$sum,halfPercent=$halfPercent")
-                val mostAngleIndex = if (sum < halfPercent) 0 else 1
-                clsResult.map { it.copy(index = mostAngleIndex) }
-            } else clsResult
-
             Logger.i("---------- step: Rotate partImages ----------")
             partMats.mapIndexed { index, mat ->
-                if (mostClsResult[index].index == 1) {
+                if (clsResults[index].index == 1) {
                     matRotateClockWise180(mat)
                 } else mat
             }
         } else partMats
-        Logger.i("clsPartMats=$clsPartMats")
+
+        Logger.i("---------- step: Get RecResults ----------")
+        val recResults = rec.getRecResults(clsPartMats)
 
         Logger.i("---------- step: Convert BoxImg ----------")
         val outRGBA = Mat()
@@ -133,7 +137,7 @@ class OcrEngine(context: Context) : Closeable {
         )
         matToBitmap(outRGBA, boxImg)
 
-        Logger.i("---------- step: Convert partImages ----------")
+        /*Logger.i("---------- step: Convert partImages ----------")
         val partImages = partMats.map { partMat ->
             val partMatRGBA = Mat()
             cvtColor(partMat, partMatRGBA, COLOR_BGR2RGBA)
@@ -142,9 +146,9 @@ class OcrEngine(context: Context) : Closeable {
             )
             matToBitmap(partMatRGBA, partImage)
             partImage
-        }
-
-        return OcrResult(detResults, emptyList(), emptyList(), boxImg, partImages)
+        }*/
+        val text = recResults.joinToString(separator = "\n") { it.text }
+        return OcrResult(detResults, clsResults, recResults, boxImg, text)
     }
 
 

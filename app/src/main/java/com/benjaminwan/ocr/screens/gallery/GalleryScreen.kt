@@ -2,6 +2,7 @@ package com.benjaminwan.ocr.screens.gallery
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -13,19 +14,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
-import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.Loading
 import com.airbnb.mvrx.Success
-import com.airbnb.mvrx.Uninitialized
 import com.airbnb.mvrx.compose.collectAsState
 import com.airbnb.mvrx.compose.mavericksViewModel
 import com.benjaminwan.ocr.screens.CommonScaffold
@@ -36,6 +34,8 @@ import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_BOX_TH
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_MAX_SIDE_LEN
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_PADDING
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_UN_CLIP_RATIO
+import com.benjaminwan.ocr.ui.widget.InfoCardView
+import com.benjaminwan.ocr.ui.widget.RowInfoView
 
 @Composable
 fun GalleryScreen(navController: NavHostController) {
@@ -55,10 +55,13 @@ fun GalleryScreen(navController: NavHostController) {
                     .border(width = 2.dp, color = Color.Gray)
             ) {
                 when (state.selectTab) {
-                    GalleryTab.Picture -> PictureView(vm = vm, state = state)
+                    GalleryTab.Picture -> PictureView(state = state)
                     GalleryTab.Parameter -> ParamView(vm = vm, state = state)
-                    GalleryTab.Result -> ResultView(vm = vm, state = state)
-                    GalleryTab.Debug -> DebugView(vm = vm, state = state)
+                    GalleryTab.TextResult -> TextResultView(vm = vm, state = state)
+                    GalleryTab.BoxImage -> BoxImageView(state = state)
+                    GalleryTab.DetTab -> DetResultsView(state = state)
+                    GalleryTab.ClsTab -> ClsResultsView(state = state)
+                    GalleryTab.RecTab -> RecResultsView(state = state)
                 }
             }
             BottomButton(vm = vm, state = state)
@@ -68,12 +71,15 @@ fun GalleryScreen(navController: NavHostController) {
 
 @Composable
 private fun HeaderView(vm: GalleryViewModel, state: GalleryState) {
-    TabRow(selectedTabIndex = state.selectTab.first) {
-        state.tabs.forEach {
-            Tab(
-                selected = it.first == state.selectTab.first,
-                onClick = { vm.setSelectTab(it) }
-            ) {
+    ScrollableTabRow(selectedTabIndex = state.selectTab.first) {
+        state.tabs.filterIndexed { index, galleryTab ->
+            when {
+                state.imageUri == null -> index < 1
+                state.detectRequest !is Success -> index < 2
+                else -> true
+            }
+        }.forEach {
+            Tab(selected = it.first == state.selectTab.first, onClick = { vm.setSelectTab(it) }) {
                 Text(
                     text = it.second,
                     modifier = Modifier.padding(horizontal = 0.dp, vertical = 8.dp),
@@ -100,46 +106,45 @@ private fun BottomButton(vm: GalleryViewModel, state: GalleryState) {
             onClick = {
                 actionOpenPicker.launch("image/*")
             },
+            enabled = state.detectRequest !is Loading,
         ) {
-            Text(text = "Open")
+            Text(text = "打开")
         }
         Button(
             modifier = Modifier
                 .weight(1f)
                 .padding(horizontal = 4.dp),
             onClick = { vm.detect() },
+            enabled = state.detectRequest !is Loading,
         ) {
-            Text(text = "Detect")
-        }
-        Button(
-            modifier = Modifier
-                .weight(1f)
-                .padding(horizontal = 4.dp),
-            onClick = { /*TODO*/ },
-        ) {
-            Text(text = "Benchmark")
+            Text(text = "识别")
         }
     }
 }
 
 @Composable
-private fun PictureView(vm: GalleryViewModel, state: GalleryState) {
-    Image(
-        painter = rememberAsyncImagePainter(
-            ImageRequest
-                .Builder(LocalContext.current)
-                .data(data = state.imageUri)
-                .build()
-        ),
-        contentDescription = null,
-        modifier = Modifier
-            .fillMaxSize(),
-        contentScale = ContentScale.Fit
-    )
+private fun PictureView(state: GalleryState) {
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        val minSize = min(this.maxWidth, this.maxHeight)
+        Image(
+            painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current).data(data = state.imageUri).build()
+            ), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit
+        )
+        AnimatedVisibility(visible = state.detectRequest is Loading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(minSize), color = MaterialTheme.colors.primary.copy(alpha = 0.5f), strokeWidth = minSize / 10
+            )
+        }
+    }
 }
 
 @Composable
 private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
+    val editEnabled = state.detectRequest !is Loading
     LazyColumn(
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -155,6 +160,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Number),
                     isError = state.maxSideLenError,
                     singleLine = true,
+                    enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -166,6 +172,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Number),
                     isError = state.paddingError,
                     singleLine = true,
+                    enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -177,6 +184,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Decimal),
                     isError = state.boxScoreThreshError,
                     singleLine = true,
+                    enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -188,6 +196,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Decimal),
                     isError = state.boxThreshError,
                     singleLine = true,
+                    enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -199,15 +208,16 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Decimal),
                     isError = state.unClipRatioError,
                     singleLine = true,
+                    enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(text = "文字方向检测，当投票关闭时，针对每行检测方向，默认:开", color = MaterialTheme.colors.primary)
-                Switch(checked = state.doAngle, onCheckedChange = { vm.setDoAngle(it) })
+                Switch(checked = state.doAngle, onCheckedChange = { vm.setDoAngle(it) }, enabled = editEnabled)
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(text = "文字方向投票(以最大概率作为全文方向)，默认:开", color = MaterialTheme.colors.primary)
-                Switch(checked = state.mostAngle, onCheckedChange = { vm.setMostAngle(it) })
+                Switch(checked = state.mostAngle, onCheckedChange = { vm.setMostAngle(it) }, enabled = editEnabled)
 
             }
         }
@@ -215,50 +225,133 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
 }
 
 @Composable
-private fun ResultView(vm: GalleryViewModel, state: GalleryState) {
-    when (state.detectRequest) {
-        Uninitialized -> {}
-        is Loading -> {}
-        is Fail -> {}
-        is Success -> {
-            Image(
-                painter = rememberAsyncImagePainter(
-                    ImageRequest
-                        .Builder(LocalContext.current)
-                        .data(data = state.detectRequest()!!.boxImage)
-                        .build()
-                ),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentScale = ContentScale.Fit
-            )
-
+private fun TextResultView(vm: GalleryViewModel, state: GalleryState) {
+    if (state.detectRequest is Success) {
+        val text = state.detectRequest()?.text ?: ""
+        Column(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+            ) {
+                item {
+                    Text(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                        text = text,
+                    )
+                }
+            }
+            Button(modifier = Modifier.fillMaxWidth(), onClick = { vm.toClipboard(text) }) {
+                Text(text = "复制到剪切板")
+            }
         }
     }
 }
 
 @Composable
-private fun DebugView(vm: GalleryViewModel, state: GalleryState) {
-    when (state.detectRequest) {
-        Uninitialized -> {}
-        is Loading -> {}
-        is Fail -> {}
-        is Success -> {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                state.detectRequest()!!.partImages.forEach { img ->
-                    item {
-                        Image(
-                            painter = BitmapPainter(img.asImageBitmap()),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            contentScale = ContentScale.FillWidth
-                        )
-                        Divider(modifier = Modifier.height(2.dp))
-                        Spacer(modifier = Modifier.height(8.dp))
+private fun BoxImageView(state: GalleryState) {
+    if (state.detectRequest is Success) {
+        val boxImage = state.detectRequest()?.boxImage
+        Image(
+            painter = rememberAsyncImagePainter(
+                ImageRequest.Builder(LocalContext.current).data(data = boxImage).build()
+            ), contentDescription = null, modifier = Modifier.fillMaxSize(), contentScale = ContentScale.Fit
+        )
+    }
+}
+
+
+@Composable
+private fun DetResultsView(state: GalleryState) {
+    if (state.detectRequest is Success) {
+        val detResults = state.detectRequest()?.detResults ?: emptyList()
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            detResults.forEachIndexed { index, detResult ->
+                item {
+                    InfoCardView(headerText = "框${index}") {
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            RowInfoView(
+                                modifier = Modifier.fillMaxWidth(),
+                                header = "坐标:",
+                                content = detResult.points.map { "(${it.x},${it.y})" }.joinToString()
+                            )
+                            RowInfoView(
+                                modifier = Modifier.fillMaxWidth(),
+                                header = "置信度:",
+                                content = "${detResult.score}"
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClsResultsView(state: GalleryState) {
+    if (state.detectRequest is Success) {
+        val clsResults = state.detectRequest()?.clsResults ?: emptyList()
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            clsResults.forEachIndexed { index, clsResult ->
+                item {
+                    InfoCardView(
+                        headerText = "框${index}",
+                    ) {
+                        Column {
+                            RowInfoView(
+                                modifier = Modifier.fillMaxWidth(),
+                                header = "方向:",
+                                content = clsResult.indexDirection
+                            )
+                            RowInfoView(
+                                modifier = Modifier.fillMaxWidth(),
+                                header = "置信度:",
+                                content = clsResult.score.toString()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecResultsView(state: GalleryState) {
+    if (state.detectRequest is Success) {
+        val recResults = state.detectRequest()?.recResults ?: emptyList()
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            recResults.forEachIndexed { index, recResult ->
+                item {
+                    InfoCardView(headerText = "框${index}") {
+                        Column {
+                            RowInfoView(
+                                modifier = Modifier.fillMaxWidth(),
+                                header = "文字:",
+                                content = recResult.text
+                            )
+                            RowInfoView(
+                                modifier = Modifier.fillMaxWidth(),
+                                header = "置信度:",
+                                content = recResult.charScores.toString()
+                            )
+                            RowInfoView(
+                                modifier = Modifier.fillMaxWidth(),
+                                header = "耗时:",
+                                content = recResult.time.toString()
+                            )
+                        }
                     }
                 }
             }

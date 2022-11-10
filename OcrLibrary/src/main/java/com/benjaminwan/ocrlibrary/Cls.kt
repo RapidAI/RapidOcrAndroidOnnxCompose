@@ -19,10 +19,6 @@ class Cls(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
         ortEnv.createSession(model)
     }
 
-    private val meanValues = floatArrayOf(127.5F, 127.5F, 127.5F)
-
-    private val normValues = floatArrayOf(1.0F / 127.5F, 1.0F / 127.5F, 1.0F / 127.5F)
-
     private fun getClsResult(src: Mat): ClsResult {
         val srcResize = adjustToDst(src, DST_WIDTH, DST_HEIGHT)
         val inputTensorValues = substractMeanNormalize(srcResize, meanValues, normValues)
@@ -44,32 +40,31 @@ class Cls(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
         }
     }
 
-    fun getClsResults(partMats: List<Mat>, doAngle: Boolean, mostAngle: Boolean): List<ClsResult> {
-        val results = partMats.map {
-            getClsResult(it)
-        }
-        return results
+    fun getClsResults(partMats: List<Mat>): List<ClsResult> = partMats.map {
+        getClsResult(it)
     }
 
-    fun adjustToDst(src: Mat, dstWidth: Int, dstHeight: Int): Mat {
+    fun adjustToDst(src: Mat, dstWidth: Double, dstHeight: Double): Mat {
         val srcResize = Mat()
-        val scale = dstHeight.toDouble() / src.rows()
+        val scale = dstHeight / src.rows()
         val srcWidth = src.cols() * scale
-        resize(src, srcResize, Size(srcWidth, dstHeight.toDouble()))
-        val srcFit = Mat(dstHeight, dstWidth, CV_8UC3, Scalar(255.0, 255.0, 255.0))
+        resize(src, srcResize, Size(srcWidth, dstHeight))
+        val srcFit = Mat(dstHeight.toInt(), dstWidth.toInt(), CV_8UC3, Scalar(255.0, 255.0, 255.0))
         if (srcWidth < dstWidth) {
             val rect = Rect(0, 0, srcResize.cols(), srcResize.rows())
             srcResize.copyTo(srcFit.submat(rect))
         } else {
-            val rect = Rect(0, 0, dstWidth, dstHeight)
+            val rect = Rect(0, 0, dstWidth.toInt(), dstHeight.toInt())
             srcResize.submat(rect).copyTo(srcFit)
         }
         return srcFit;
     }
 
     companion object {
-        private const val DST_WIDTH = 192
-        private const val DST_HEIGHT = 48
+        private const val DST_WIDTH = 192.0
+        private const val DST_HEIGHT = 48.0
+        private val meanValues = floatArrayOf(127.5F, 127.5F, 127.5F)
+        private val normValues = floatArrayOf(1.0F / 127.5F, 1.0F / 127.5F, 1.0F / 127.5F)
     }
 
 }

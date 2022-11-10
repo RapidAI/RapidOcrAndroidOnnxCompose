@@ -16,7 +16,7 @@ data class OcrResult(
     val clsResults: List<ClsResult>,
     val recResults: List<RecResult>,
     val boxImage: Bitmap,
-    val partImages: List<Bitmap>,
+    val text: String,
 ) : Parcelable, OcrOutput()
 
 @Parcelize
@@ -35,7 +35,9 @@ data class ClsResult(
     val index: Int,
     val score: Float,
     val time: Double,
-) : Parcelable
+) : Parcelable {
+    val indexDirection: String get() = if (index == 0) "↑" else "↓"
+}
 
 @Parcelize
 data class RecResult(

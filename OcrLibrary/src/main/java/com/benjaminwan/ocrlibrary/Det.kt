@@ -18,10 +18,6 @@ class Det(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
         ortEnv.createSession(model)
     }
 
-    private val meanValues = floatArrayOf(0.485F * 255, 0.456F * 255, 0.406F * 255)
-
-    private val normValues = floatArrayOf(1.0F / 0.229F / 255.0F, 1.0F / 0.224F / 255.0F, 1.0F / 0.225F / 255.0F)
-
     fun getDetResults(src: Mat, s: ScaleParam, boxScoreThresh: Float, boxThresh: Float, unClipRatio: Float): List<DetResult> {
         val srcResize = Mat()
         Imgproc.resize(src, srcResize, Size(s.dstWidth.toDouble(), s.dstHeight.toDouble()))
@@ -136,6 +132,12 @@ class Det(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
             //Logger.i("rsBoxes[$i]=${rsBoxes[i]}")
         }
         return rsBoxes.asReversed()
+    }
+
+    companion object {
+        private val meanValues = floatArrayOf(0.485F * 255, 0.456F * 255, 0.406F * 255)
+
+        private val normValues = floatArrayOf(1.0F / 0.229F / 255.0F, 1.0F / 0.224F / 255.0F, 1.0F / 0.225F / 255.0F)
     }
 
 }

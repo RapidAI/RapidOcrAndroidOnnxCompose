@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import com.airbnb.mvrx.MavericksViewModel
 import com.airbnb.mvrx.MavericksViewModelFactory
+import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.ViewModelContext
 import com.benjaminwan.ocr.app.App
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxScoreThreshRange
@@ -12,6 +13,7 @@ import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.maxSideLenRang
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.paddingRange
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.unClipRatioRange
 import com.benjaminwan.ocr.utils.decodeUri
+import com.benjaminwan.ocr.utils.toClipboard
 import com.benjaminwan.ocrlibrary.OcrEngine
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -32,7 +34,7 @@ class GalleryViewModel(
     }
 
     fun setUri(uri: Uri? = null) {
-        setState { copy(imageUri = uri) }
+        setState { copy(imageUri = uri, selectTab = tabs.first()) }
     }
 
     fun setMaxSideLen(input: String) {
@@ -87,8 +89,12 @@ class GalleryViewModel(
         }
     }
         .execute {
-            copy(detectRequest = it)
+            copy(detectRequest = it, selectTab = if (it is Success) GalleryTab.TextResult else selectTab)
         }
+
+    fun toClipboard(text: String) {
+        context.toClipboard(text)
+    }
 
     override fun onCleared() {
         super.onCleared()
