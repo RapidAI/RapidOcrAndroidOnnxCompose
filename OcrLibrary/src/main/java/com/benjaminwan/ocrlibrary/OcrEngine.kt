@@ -103,11 +103,27 @@ class OcrEngine(context: Context) : Closeable {
 
         Logger.i("---------- step: Get PartMats ----------")
         val partMats = getPartMats(src, detResults)
-        Logger.i("$partMats")
 
-        Logger.i("---------- step: getClsResults ----------")
+        val clsPartMats = if (doAngle) {
+            Logger.i("---------- step: getClsResults ----------")
+            val clsResult = cls.getClsResults(partMats, doAngle, mostAngle)
 
-        Logger.i("---------- step: Rotate partImages ----------")
+            val mostClsResult = if (mostAngle) {
+                val sum = clsResult.map { it.index }.sum().toFloat()
+                val halfPercent = clsResult.size.toFloat() / 2.0F
+                //Logger.i("sum=$sum,halfPercent=$halfPercent")
+                val mostAngleIndex = if (sum < halfPercent) 0 else 1
+                clsResult.map { it.copy(index = mostAngleIndex) }
+            } else clsResult
+
+            Logger.i("---------- step: Rotate partImages ----------")
+            partMats.mapIndexed { index, mat ->
+                if (mostClsResult[index].index == 1) {
+                    matRotateClockWise180(mat)
+                } else mat
+            }
+        } else partMats
+        Logger.i("clsPartMats=$clsPartMats")
 
         Logger.i("---------- step: Convert BoxImg ----------")
         val outRGBA = Mat()
@@ -118,7 +134,7 @@ class OcrEngine(context: Context) : Closeable {
         matToBitmap(outRGBA, boxImg)
 
         Logger.i("---------- step: Convert partImages ----------")
-        val partImages = partMats.map { partMat->
+        val partImages = partMats.map { partMat ->
             val partMatRGBA = Mat()
             cvtColor(partMat, partMatRGBA, COLOR_BGR2RGBA)
             val partImage = Bitmap.createBitmap(

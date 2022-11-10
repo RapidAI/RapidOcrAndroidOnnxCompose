@@ -13,7 +13,7 @@ import java.util.*
 
 class Det(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelName: String) {
 
-    private val detSession by lazy {
+    private val session by lazy {
         val model = assetManager.open(modelName, AssetManager.ACCESS_UNKNOWN).readBytes()
         ortEnv.createSession(model)
     }
@@ -28,10 +28,10 @@ class Det(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
 
         val inputTensorValues = substractMeanNormalize(srcResize, meanValues, normValues)
         val inputShape = longArrayOf(1, srcResize.channels().toLong(), srcResize.rows().toLong(), srcResize.cols().toLong())
-        val inputName = detSession.inputNames.iterator().next()
+        val inputName = session.inputNames.iterator().next()
 
         OnnxTensor.createTensor(ortEnv, inputTensorValues, inputShape).use { inputTensor ->
-            detSession.run(Collections.singletonMap(inputName, inputTensor)).use { output ->
+            session.run(Collections.singletonMap(inputName, inputTensor)).use { output ->
                 val onnxValue = output.first().value
                 val tensorInfo = onnxValue.info as TensorInfo
                 /*val type = onnxValue.type

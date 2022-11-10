@@ -317,3 +317,9 @@ internal fun getPartMats(src: Mat, detResults: List<DetResult>): List<Mat> {
         getRotateCropImage(src, it.points)
     }
 }
+
+internal fun matRotateClockWise180(src: Mat): Mat {
+    flip(src, src, 0)
+    flip(src, src, 1)
+    return src
+}
