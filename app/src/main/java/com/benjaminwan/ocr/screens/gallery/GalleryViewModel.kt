@@ -2,11 +2,12 @@ package com.benjaminwan.ocr.screens.gallery
 
 import android.content.Context
 import android.net.Uri
-import com.airbnb.mvrx.MavericksViewModel
+import com.airbnb.mvrx.Fail
 import com.airbnb.mvrx.MavericksViewModelFactory
 import com.airbnb.mvrx.Success
 import com.airbnb.mvrx.ViewModelContext
 import com.benjaminwan.ocr.app.App
+import com.benjaminwan.ocr.base.BaseViewModel
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxScoreThreshRange
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxThreshRange
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.maxSideLenRange
@@ -21,7 +22,7 @@ import kotlinx.coroutines.withContext
 class GalleryViewModel(
     initialState: GalleryState,
     private val context: Context,
-) : MavericksViewModel<GalleryState>(initialState) {
+) : BaseViewModel<GalleryState>(initialState) {
 
     private val ocrEngine = OcrEngine(App.INST.applicationContext)
 
@@ -89,11 +90,13 @@ class GalleryViewModel(
         }
     }
         .execute {
+            if (it is Fail) showError(it.error.message.toString())
             copy(detectRequest = it, selectTab = if (it is Success) GalleryTab.TextResult else selectTab)
         }
 
     fun toClipboard(text: String) {
         context.toClipboard(text)
+        showInfo("已复制到剪切板!")
     }
 
     override fun onCleared() {

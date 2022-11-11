@@ -45,6 +45,7 @@ fun GalleryScreen(navController: NavHostController) {
         modifier = Modifier.fillMaxSize(),
         title = { Text(text = Screen.Gallery.title) },
         navigationIcon = { NavBackIcon(navController) },
+        scaffoldState = state.scaffoldState,
     ) { contentPadding ->
         Column(modifier = Modifier.padding(contentPadding)) {
             HeaderView(vm = vm, state = state)

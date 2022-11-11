@@ -23,10 +23,10 @@ fun ColorSnackbar(
     elevation: Dp = 4.dp
 ) {
     val toastType = when (snackbarData.actionLabel) {
-        ToastType.Success.name -> ToastType.Success
-        ToastType.Info.name -> ToastType.Info
-        ToastType.Warning.name -> ToastType.Warning
-        ToastType.Error.name -> ToastType.Error
+        SnackType.Success.name -> SnackType.Success
+        SnackType.Info.name -> SnackType.Info
+        SnackType.Warning.name -> SnackType.Warning
+        SnackType.Error.name -> SnackType.Error
         else -> null
     }
     if (toastType != null) {
