@@ -67,6 +67,7 @@ fun GalleryScreen(navController: NavHostController) {
                     GalleryTab.Parameter -> ParamView(vm = vm, state = state)
                     GalleryTab.TextResult -> TextResultView(vm = vm, state = state)
                     GalleryTab.BoxImage -> BoxImageView(state = state)
+                    GalleryTab.TimeConsumed -> TimeConsumedView(state = state)
                     GalleryTab.DetTab -> DetResultsView(state = state)
                     GalleryTab.ClsTab -> ClsResultsView(state = state)
                     GalleryTab.RecTab -> RecResultsView(state = state)
@@ -76,6 +77,7 @@ fun GalleryScreen(navController: NavHostController) {
         }
     }
 }
+
 
 @Composable
 private fun HeaderView(vm: GalleryViewModel, state: GalleryState) {
@@ -260,30 +262,6 @@ private fun TextResultView(vm: GalleryViewModel, state: GalleryState) {
                 modifier = Modifier.weight(1f),
             ) {
                 item {
-                    Column {
-                        RowInfoView(
-                            modifier = Modifier.fillMaxWidth(),
-                            header = "Det耗时:",
-                            content = "${ocrResult?.detTime.toString()}ms"
-                        )
-                        RowInfoView(
-                            modifier = Modifier.fillMaxWidth(),
-                            header = "Cls耗时:",
-                            content = "${ocrResult?.clsTime.toString()}ms"
-                        )
-                        RowInfoView(
-                            modifier = Modifier.fillMaxWidth(),
-                            header = "Rec耗时:",
-                            content = "${ocrResult?.recTime.toString()}ms"
-                        )
-                        RowInfoView(
-                            modifier = Modifier.fillMaxWidth(),
-                            header = "总耗时:",
-                            content = "${ocrResult?.recTime.toString()}ms"
-                        )
-                    }
-                }
-                item {
                     Text(
                         modifier = Modifier
                             .fillMaxSize()
@@ -311,6 +289,36 @@ private fun BoxImageView(state: GalleryState) {
     }
 }
 
+@Composable
+fun TimeConsumedView(state: GalleryState) {
+    val ocrResult = state.detectRequest()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(2.dp),
+    ) {
+        RowInfoView(
+            modifier = Modifier.fillMaxWidth(),
+            header = "Det耗时:",
+            content = "${ocrResult?.detTime.toString()}ms"
+        )
+        RowInfoView(
+            modifier = Modifier.fillMaxWidth(),
+            header = "Cls耗时:",
+            content = "${ocrResult?.clsTime.toString()}ms"
+        )
+        RowInfoView(
+            modifier = Modifier.fillMaxWidth(),
+            header = "Rec耗时:",
+            content = "${ocrResult?.recTime.toString()}ms"
+        )
+        RowInfoView(
+            modifier = Modifier.fillMaxWidth(),
+            header = "总耗时:",
+            content = "${ocrResult?.recTime.toString()}ms"
+        )
+    }
+}
 
 @Composable
 private fun DetResultsView(state: GalleryState) {

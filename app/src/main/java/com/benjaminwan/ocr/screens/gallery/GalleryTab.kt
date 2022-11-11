@@ -9,10 +9,11 @@ sealed class GalleryTab(
     object Picture : GalleryTab(0, "图片")
     object Parameter : GalleryTab(1, "参数")
     object TextResult : GalleryTab(2, "文字结果")
-    object BoxImage : GalleryTab(3, "文字框图")
-    object DetTab : GalleryTab(4, "Det结果")
-    object ClsTab : GalleryTab(5, "Cls结果")
-    object RecTab : GalleryTab(6, "Rec结果")
+    object BoxImage : GalleryTab(3, "框图")
+    object TimeConsumed : GalleryTab(4, "耗时")
+    object DetTab : GalleryTab(5, "Det结果")
+    object ClsTab : GalleryTab(6, "Cls结果")
+    object RecTab : GalleryTab(7, "Rec结果")
 
     companion object {
         fun getTabs(): List<GalleryTab> = listOf(
@@ -20,6 +21,7 @@ sealed class GalleryTab(
             Parameter,
             TextResult,
             BoxImage,
+            TimeConsumed,
             DetTab,
             ClsTab,
             RecTab,

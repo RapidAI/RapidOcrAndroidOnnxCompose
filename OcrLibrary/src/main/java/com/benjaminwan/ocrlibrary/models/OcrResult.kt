@@ -8,13 +8,13 @@ import org.opencv.core.Point
 @Parcelize
 data class OcrResult(
     val detResults: List<DetResult>,
-    val detTime: Double,
     val clsResults: List<ClsResult>,
     val clsTime: Double,
     val recResults: List<RecResult>,
+    val detTime: Double,
     val recTime: Double,
-    val boxImage: Bitmap,
     val fullTime: Double,
+    val boxImage: Bitmap,
     val text: String,
 ) : Parcelable
 
