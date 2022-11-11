@@ -136,7 +136,7 @@ class Det(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
     }
 
     companion object {
-        private val meanValues = floatArrayOf(0.485F * 255, 0.456F * 255, 0.406F * 255)
+        private val meanValues = floatArrayOf(0.485F * 255F, 0.456F * 255F, 0.406F * 255F)
 
         private val normValues = floatArrayOf(1.0F / 0.229F / 255.0F, 1.0F / 0.224F / 255.0F, 1.0F / 0.225F / 255.0F)
     }

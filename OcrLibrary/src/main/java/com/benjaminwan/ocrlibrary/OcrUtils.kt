@@ -1,6 +1,5 @@
 package com.benjaminwan.ocrlibrary
 
-import android.graphics.Bitmap
 import androidx.core.math.MathUtils
 import com.benjaminwan.ocrlibrary.models.DetPoint
 import com.benjaminwan.ocrlibrary.models.DetResult
@@ -9,7 +8,6 @@ import de.lighti.clipper.Clipper
 import de.lighti.clipper.ClipperOffset
 import de.lighti.clipper.Path
 import de.lighti.clipper.Paths
-import org.opencv.android.Utils.matToBitmap
 import org.opencv.core.*
 import org.opencv.core.Core.*
 import org.opencv.core.CvType.CV_8UC1
@@ -76,43 +74,18 @@ internal fun substractMeanNormalize(src: Mat, meanVals: FloatArray, normVals: Fl
     val numCols = src.cols()
     val numRows = src.rows()
     val imageSize = numCols * numRows
-    val bitmap = Bitmap.createBitmap(numCols, numRows, Bitmap.Config.ARGB_8888)
-    matToBitmap(src, bitmap)
-    //Logger.i("bitmap=$bitmap")
-    val bmpData = IntArray(imageSize)
-    bitmap.getPixels(bmpData, 0, bitmap.width, 0, 0, bitmap.width, bitmap.height)
     val imgData = FloatBuffer.allocate(inputTensorSize)
     imgData.rewind()
-    for (i in 0 until numCols) {
-        for (j in 0 until numRows) {
-            val idx = numRows * i + j
-            val pixelValue = bmpData[idx]
-            /*(0..numChannels).forEach { ch ->
-                imgData.put(idx + imageSize * ch, pixelValue * normVals[ch] - meanVals[ch] * normVals[ch])
-            }*/
-            imgData.put(idx, (((pixelValue shr 16 and 0xFF) / 255f - 0.485f) / 0.229f))
-            imgData.put(idx + imageSize, (((pixelValue shr 8 and 0xFF) / 255f - 0.456f) / 0.224f))
-            imgData.put(idx + imageSize * 2, (((pixelValue and 0xFF) / 255f - 0.406f) / 0.225f))
+    src.convertTo(src, CvType.CV_32FC3)
+    val srcArray = FloatArray(inputTensorSize)
+    src.get(0, 0, srcArray)
+    for (pid in 0 until imageSize) {
+        for (ch in 0 until numChannels) {
+            val data = srcArray[pid * numChannels + ch] * normVals[ch] - meanVals[ch] * normVals[ch]
+            imgData.put(ch * imageSize + pid, data)
         }
     }
-
-
-    /*Logger.i("inputTensorValues=${inputTensorValues.capacity()}")
-    inputTensorValues.rewind()
-    (0 until numCols).forEach { col ->
-        (0 until numRows).forEach { row ->
-            val rgb = src.get(row, col)
-            val pid = numRows * col + row
-            (0 until numChannels).forEach { ch ->
-                val idx = ch * imageSize + pid
-                val data = rgb[ch].toFloat() * normVals[ch] - meanVals[ch] * normVals[ch]
-                //Logger.i("data[$idx]=${data}")
-                inputTensorValues.put(idx, data)
-            }
-        }
-    }*/
     imgData.rewind()
-    //Logger.i("inputTensorValues=${imgData.capacity()}")
     return imgData
 }
 
