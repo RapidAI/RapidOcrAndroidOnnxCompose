@@ -18,11 +18,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.benjaminwan.ocr.screens.CommonScaffold
-import com.benjaminwan.ocr.screens.Screen.Companion.menuList
+import com.benjaminwan.ocr.screens.Screen.Companion.mainMenuList
+import com.benjaminwan.ocr.ui.theme.AppTheme
 
 @Composable
 fun MainScreen(navController: NavHostController) {
@@ -38,11 +42,11 @@ fun MainScreen(navController: NavHostController) {
                         .weight(1f),
                     columns = GridCells.Fixed(2),
                 ) {
-                    menuList.forEach { screen ->
+                    mainMenuList.forEach { screen ->
                         item {
                             GridItem(
                                 iconId = screen.iconId,
-                                label = screen.title,
+                                label = stringResource(id = screen.titleId),
                                 action = { navController.navigate(screen.route) },
                             )
                         }
@@ -82,5 +86,13 @@ fun GridItem(
         }
 
         Text(text = label, textAlign = TextAlign.Center, color = textColor)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    AppTheme {
+        MainScreen(rememberNavController())
     }
 }

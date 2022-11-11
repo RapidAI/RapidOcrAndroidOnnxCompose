@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
@@ -43,7 +44,7 @@ fun GalleryScreen(navController: NavHostController) {
     val state by vm.collectAsState()
     CommonScaffold(
         modifier = Modifier.fillMaxSize(),
-        title = { Text(text = Screen.Gallery.title) },
+        title = { Text(text = stringResource(id = Screen.Gallery.titleId)) },
         navigationIcon = { NavBackIcon(navController) },
         scaffoldState = state.scaffoldState,
     ) { contentPadding ->
