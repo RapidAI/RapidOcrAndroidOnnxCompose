@@ -322,7 +322,7 @@ fun TimeConsumedView(state: GalleryState) {
         RowInfoView(
             modifier = Modifier.fillMaxWidth(),
             header = "总耗时:",
-            content = "${ocrResult?.recTime.toString()}ms"
+            content = "${ocrResult?.fullTime.toString()}ms"
         )
     }
 }
