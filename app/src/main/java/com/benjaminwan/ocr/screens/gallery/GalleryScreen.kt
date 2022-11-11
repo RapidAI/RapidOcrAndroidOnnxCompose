@@ -165,6 +165,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                 Text(text = "默认关，scaleUp 放大使能；禁用时只进行图片缩小，不进行放大；启用时，原图长边小于maxSideLen时会放大，原图长边大于maxSideLen时会缩小", color = MaterialTheme.colors.primary)
                 Switch(checked = state.scaleUp, onCheckedChange = { vm.setScaleUp(it) }, enabled = editEnabled)
                 Spacer(modifier = Modifier.height(8.dp))
+                Divider(modifier = Modifier.height(2.dp))
 
                 Text(
                     text = "范围(${maxSideLenRange.rangeStr}),默认${DEFAULT_MAX_SIDE_LEN}，maxSideLen 长边缩放(单位像素)，把原始图片以长边为基准等比例缩放，用于减少检测(det)耗时，0代表不缩放，如果原始图片长边小于32，则缩放到32",
@@ -180,6 +181,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                Divider(modifier = Modifier.height(2.dp))
 
                 Text(
                     text = "范围(${paddingRange.rangeStr}),默认${DEFAULT_PADDING}，padding 增加白边(单位像素)，太靠近边缘的文字检测(det)效果不佳，通过增加此值来提升准确率",
@@ -195,6 +197,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                Divider(modifier = Modifier.height(2.dp))
 
                 Text(
                     text = "范围(${boxScoreThreshRange.rangeStr})，默认${DEFAULT_BOX_SCORE_THRESH}，boxScoreThresh 文字框置信度门限，检测(det)没有正确框出所有文字时，减小此值",
@@ -210,6 +213,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                Divider(modifier = Modifier.height(2.dp))
 
                 Text(text = "范围(${boxThreshRange.rangeStr})，默认${DEFAULT_BOX_THRESH}，boxThresh 用于过滤检测时的噪点", color = MaterialTheme.colors.primary)
                 OutlinedTextField(
@@ -222,6 +226,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                Divider(modifier = Modifier.height(2.dp))
 
                 Text(
                     text = "范围(${unClipRatioRange.rangeStr})，默认${DEFAULT_UN_CLIP_RATIO}，unClipRatio 文字框大小倍率，越大时单个文字框越大",
@@ -237,10 +242,12 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                     enabled = editEnabled,
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+                Divider(modifier = Modifier.height(2.dp))
 
                 Text(text = "默认:开，doCls 文字方向分类，只有图片倒置的情况下(旋转90~270度的图片)，才需要启用此项", color = MaterialTheme.colors.primary)
                 Switch(checked = state.doCls, onCheckedChange = { vm.setDoCls(it) }, enabled = editEnabled)
                 Spacer(modifier = Modifier.height(8.dp))
+                Divider(modifier = Modifier.height(2.dp))
 
                 Text(text = "默认:开，mostCls 文字方向投票(关闭时每行方向独立，开启时以最大概率作为全文方向)，当禁用文字方向检测时，此项也不起作用", color = MaterialTheme.colors.primary)
                 Switch(checked = state.mostCls, onCheckedChange = { vm.setMostCls(it) }, enabled = editEnabled)
