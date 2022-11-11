@@ -21,12 +21,18 @@ data class GalleryState(
     val boxThreshError: Boolean = false,
     val unClipRatio: String = DEFAULT_UN_CLIP_RATIO,
     val unClipRatioError: Boolean = false,
-    val doAngle: Boolean = true,
-    val mostAngle: Boolean = true,
+    val doCls: Boolean = true,
+    val mostCls: Boolean = true,
 ) : BaseState() {
     companion object {
+        val IntRange.rangeStr: String
+            get() = "${first}~${last}"
+
+        val ClosedFloatingPointRange<Float>.rangeStr: String
+            get() = "${start}~${endInclusive}"
+
         const val DEFAULT_MAX_SIDE_LEN = "1024"
-        val maxSideLenRange = 0..Int.MAX_VALUE
+        val maxSideLenRange = 32..Int.MAX_VALUE
 
         const val DEFAULT_PADDING = "50"
         val paddingRange = 0..Int.MAX_VALUE

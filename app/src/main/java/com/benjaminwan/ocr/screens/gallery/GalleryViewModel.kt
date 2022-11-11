@@ -71,22 +71,27 @@ class GalleryViewModel(
         setState { copy(unClipRatio = input, unClipRatioError = value == null || value !in unClipRatioRange) }
     }
 
-    fun setDoAngle(input: Boolean) {
-        setState { copy(doAngle = input, mostAngle = if (!input) false else mostAngle) }
+    fun setDoCls(input: Boolean) {
+        setState { copy(doCls = input, mostCls = if (!input) false else mostCls) }
     }
 
-    fun setMostAngle(input: Boolean) {
-        setState { copy(mostAngle = input) }
+    fun setMostCls(input: Boolean) {
+        setState { copy(mostCls = input) }
     }
 
     fun detect() = suspend {
         val state = awaitState()
-        val maxSideLen = state.maxSideLen.toInt()
-        val padding = state.padding.toInt()
         val uri = state.imageUri ?: throw Exception("uri is null")
         val bmp = context.decodeUri(uri) ?: throw Exception("bitmap is null")
+        val maxSideLen = state.maxSideLen.toInt()
+        val padding = state.padding.toInt()
+        val boxScoreThresh = state.boxScoreThresh.toFloat()
+        val boxThresh = state.boxThresh.toFloat()
+        val unClipRatio = state.unClipRatio.toFloat()
+        val doCls = state.doCls
+        val mostCls = state.mostCls
         withContext(Dispatchers.IO) {
-            ocrEngine.detect(bmp, maxSideLen, padding, 0.5F, 0.3F, 1.6F, true, true)
+            ocrEngine.detect(bmp, maxSideLen, padding, boxScoreThresh, boxThresh, unClipRatio, doCls, mostCls)
         }
     }
         .execute {

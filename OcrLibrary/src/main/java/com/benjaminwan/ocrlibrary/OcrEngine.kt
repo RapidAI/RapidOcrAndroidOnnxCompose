@@ -55,10 +55,10 @@ class OcrEngine(context: Context) : Closeable {
         boxScoreThresh: Float,
         boxThresh: Float,
         unClipRatio: Float,
-        doAngle: Boolean,
-        mostAngle: Boolean
+        doCls: Boolean,
+        mostCls: Boolean
     ): OcrResult {
-        Logger.i("padding($padding),maxSideLen($maxSideLen),boxScoreThresh($boxScoreThresh),boxThresh($boxThresh),unClipRatio($unClipRatio),doAngle($doAngle),mostAngle($mostAngle)")
+        Logger.i("padding($padding),maxSideLen($maxSideLen),boxScoreThresh($boxScoreThresh),boxThresh($boxThresh),unClipRatio($unClipRatio),doCls($doCls),mostCls($mostCls)")
         val imgRGBA = Mat(bmp.width, bmp.height, CvType.CV_8UC4)
         Utils.bitmapToMat(bmp, imgRGBA)
         val imgBGR = Mat()
@@ -75,7 +75,7 @@ class OcrEngine(context: Context) : Closeable {
         val s = getScaleParam(paddingSrc, resize)
         //按比例缩小图像，减少文字分割时间
         Logger.i("$s")
-        val ocrResult = detect(paddingSrc, paddingRect, s, boxScoreThresh, boxThresh, unClipRatio, doAngle, mostAngle)
+        val ocrResult = detect(paddingSrc, paddingRect, s, boxScoreThresh, boxThresh, unClipRatio, doCls, mostCls)
 
         return ocrResult
     }
@@ -87,8 +87,8 @@ class OcrEngine(context: Context) : Closeable {
         boxScoreThresh: Float,
         boxThresh: Float,
         unClipRatio: Float,
-        doAngle: Boolean,
-        mostAngle: Boolean
+        doCls: Boolean,
+        mostCls: Boolean
     ): OcrResult {
         val textBoxPaddingImg = src.clone()
         val thickness = getThickness(src)
@@ -103,10 +103,10 @@ class OcrEngine(context: Context) : Closeable {
         Logger.i("---------- step: Get PartMats ----------")
         val partMats = getPartMats(src, detResults)
 
-        val clsResults = if (doAngle) {
+        val clsResults = if (doCls) {
             Logger.i("---------- step: Get ClsResults ----------")
             val results = cls.getClsResults(partMats)
-            if (mostAngle) {
+            if (mostCls) {
                 results.map {
                     val sum = results.map { it.index }.sum().toFloat()
                     val halfPercent = results.size.toFloat() / 2.0F
@@ -117,7 +117,7 @@ class OcrEngine(context: Context) : Closeable {
             } else results
         } else emptyList()
 
-        val clsPartMats = if (doAngle) {
+        val clsPartMats = if (doCls) {
             Logger.i("---------- step: Rotate partImages ----------")
             partMats.mapIndexed { index, mat ->
                 if (clsResults[index].index == 1) {

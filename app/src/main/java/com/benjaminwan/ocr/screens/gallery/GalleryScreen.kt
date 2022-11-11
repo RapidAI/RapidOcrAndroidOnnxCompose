@@ -35,6 +35,12 @@ import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_BOX_TH
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_MAX_SIDE_LEN
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_PADDING
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.DEFAULT_UN_CLIP_RATIO
+import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxScoreThreshRange
+import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxThreshRange
+import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.maxSideLenRange
+import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.paddingRange
+import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.rangeStr
+import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.unClipRatioRange
 import com.benjaminwan.ocr.ui.widget.InfoCardView
 import com.benjaminwan.ocr.ui.widget.RowInfoView
 
@@ -154,7 +160,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
     ) {
         item {
             Column {
-                Text(text = "maxSideLen，以长边缩放，单位像素,范围32~1024,默认${DEFAULT_MAX_SIDE_LEN}", color = MaterialTheme.colors.primary)
+                Text(text = "maxSideLen，以长边缩放，单位像素,范围(${maxSideLenRange.rangeStr}),默认${DEFAULT_MAX_SIDE_LEN}", color = MaterialTheme.colors.primary)
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = state.maxSideLen,
@@ -166,7 +172,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "Padding，图像加白边，单位像素，范围0~${Int.MAX_VALUE},默认${DEFAULT_PADDING}", color = MaterialTheme.colors.primary)
+                Text(text = "Padding，图像加白边，单位像素，范围(${paddingRange.rangeStr}),默认${DEFAULT_PADDING}", color = MaterialTheme.colors.primary)
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = state.padding,
@@ -178,7 +184,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "boxScoreThresh，框置信度门限，范围0~1.0，默认${DEFAULT_BOX_SCORE_THRESH}", color = MaterialTheme.colors.primary)
+                Text(text = "boxScoreThresh，框置信度门限，范围(${boxScoreThreshRange.rangeStr})，默认${DEFAULT_BOX_SCORE_THRESH}", color = MaterialTheme.colors.primary)
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = state.boxScoreThresh,
@@ -190,7 +196,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "boxThresh，过滤噪点，范围0~1.0，默认${DEFAULT_BOX_THRESH}", color = MaterialTheme.colors.primary)
+                Text(text = "boxThresh，过滤噪点，范围(${boxThreshRange.rangeStr})，默认${DEFAULT_BOX_THRESH}", color = MaterialTheme.colors.primary)
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = state.boxThresh,
@@ -202,7 +208,7 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "unClipRatio，框大小倍率，范围1.0~3.0，默认${DEFAULT_UN_CLIP_RATIO}", color = MaterialTheme.colors.primary)
+                Text(text = "unClipRatio，框大小倍率，范围(${unClipRatioRange.rangeStr})，默认${DEFAULT_UN_CLIP_RATIO}", color = MaterialTheme.colors.primary)
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
                     value = state.unClipRatio,
@@ -214,12 +220,12 @@ private fun ParamView(vm: GalleryViewModel, state: GalleryState) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "文字方向检测，当投票关闭时，针对每行检测方向，默认:开", color = MaterialTheme.colors.primary)
-                Switch(checked = state.doAngle, onCheckedChange = { vm.setDoAngle(it) }, enabled = editEnabled)
+                Text(text = "文字方向检测，默认:开", color = MaterialTheme.colors.primary)
+                Switch(checked = state.doCls, onCheckedChange = { vm.setDoCls(it) }, enabled = editEnabled)
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Text(text = "文字方向投票(以最大概率作为全文方向)，默认:开", color = MaterialTheme.colors.primary)
-                Switch(checked = state.mostAngle, onCheckedChange = { vm.setMostAngle(it) }, enabled = editEnabled)
+                Text(text = "文字方向投票(关闭时每行检测方向，开启时以最大概率作为全文方向)，默认:开", color = MaterialTheme.colors.primary)
+                Switch(checked = state.mostCls, onCheckedChange = { vm.setMostCls(it) }, enabled = editEnabled)
 
             }
         }
