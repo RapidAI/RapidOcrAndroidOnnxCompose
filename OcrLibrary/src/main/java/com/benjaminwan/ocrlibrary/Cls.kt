@@ -35,7 +35,7 @@ class Cls(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
                     a.flatMap { listOf(it) }
                 }
                 val max = outputData.withIndex().maxBy { it.value }
-                return ClsResult(max.index, max.value, 0.0)
+                return ClsResult(max.index, max.value)
             }
         }
     }

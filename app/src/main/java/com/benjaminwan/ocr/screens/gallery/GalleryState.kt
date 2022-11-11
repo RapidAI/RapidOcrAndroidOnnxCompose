@@ -11,6 +11,7 @@ data class GalleryState(
     val selectTab: GalleryTab = tabs.first(),
     val detectRequest: Async<OcrResult> = Uninitialized,//打开文件
     val imageUri: Uri? = null,
+    val scaleUp: Boolean = false,
     val maxSideLen: String = DEFAULT_MAX_SIDE_LEN,
     val maxSideLenError: Boolean = false,
     val padding: String = DEFAULT_PADDING,
@@ -32,7 +33,7 @@ data class GalleryState(
             get() = "${start}~${endInclusive}"
 
         const val DEFAULT_MAX_SIDE_LEN = "1024"
-        val maxSideLenRange = 32..Int.MAX_VALUE
+        val maxSideLenRange = 0..Int.MAX_VALUE
 
         const val DEFAULT_PADDING = "50"
         val paddingRange = 0..Int.MAX_VALUE

@@ -38,6 +38,10 @@ class GalleryViewModel(
         setState { copy(imageUri = uri, selectTab = tabs.first()) }
     }
 
+    fun setScaleUp(input: Boolean) {
+        setState { copy(scaleUp = input) }
+    }
+
     fun setMaxSideLen(input: String) {
         val value = try {
             input.toInt()
@@ -83,6 +87,7 @@ class GalleryViewModel(
         val state = awaitState()
         val uri = state.imageUri ?: throw Exception("uri is null")
         val bmp = context.decodeUri(uri) ?: throw Exception("bitmap is null")
+        val scaleUp = state.scaleUp
         val maxSideLen = state.maxSideLen.toInt()
         val padding = state.padding.toInt()
         val boxScoreThresh = state.boxScoreThresh.toFloat()
@@ -91,7 +96,7 @@ class GalleryViewModel(
         val doCls = state.doCls
         val mostCls = state.mostCls
         withContext(Dispatchers.IO) {
-            ocrEngine.detect(bmp, maxSideLen, padding, boxScoreThresh, boxThresh, unClipRatio, doCls, mostCls)
+            ocrEngine.detect(bmp, scaleUp, maxSideLen, padding, boxScoreThresh, boxThresh, unClipRatio, doCls, mostCls)
         }
     }
         .execute {

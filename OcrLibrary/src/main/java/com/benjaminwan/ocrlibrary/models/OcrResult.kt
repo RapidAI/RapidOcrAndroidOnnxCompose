@@ -5,19 +5,18 @@ import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 import org.opencv.core.Point
 
-open class OcrOutput
-
-object OcrStop : OcrOutput()
-object OcrFailed : OcrOutput()
-
 @Parcelize
 data class OcrResult(
     val detResults: List<DetResult>,
+    val detTime: Double,
     val clsResults: List<ClsResult>,
+    val clsTime: Double,
     val recResults: List<RecResult>,
+    val recTime: Double,
     val boxImage: Bitmap,
+    val fullTime: Double,
     val text: String,
-) : Parcelable, OcrOutput()
+) : Parcelable
 
 @Parcelize
 data class DetPoint(var x: Int, var y: Int) : Parcelable {
@@ -34,14 +33,14 @@ data class DetResult(
 data class ClsResult(
     val index: Int,
     val score: Float,
-    val time: Double,
 ) : Parcelable {
     val indexDirection: String get() = if (index == 0) "↑" else "↓"
 }
 
 @Parcelize
 data class RecResult(
-    val text: String, val charScores: List<Float>, val time: Double,
+    val text: String,
+    val charScores: List<Float>,
 ) : Parcelable
 
 

@@ -37,7 +37,7 @@ class Rec(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
             }
             lastIndex = max.index
         }
-        return RecResult(sb.toString(), scores, 0.0)
+        return RecResult(sb.toString(), scores)
     }
 
     fun getRecResult(src: Mat): RecResult {
