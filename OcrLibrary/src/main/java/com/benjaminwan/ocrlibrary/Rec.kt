@@ -51,8 +51,8 @@ class Rec(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
         OnnxTensor.createTensor(ortEnv, inputTensorValues, inputShape).use { inputTensor ->
             session.run(Collections.singletonMap(inputName, inputTensor)).use { output ->
                 val onnxValue = output.first().value
-                val tensorInfo = onnxValue.info as TensorInfo
-                /*val type = onnxValue.type
+                /*val tensorInfo = onnxValue.info as TensorInfo
+                val type = onnxValue.type
                 Logger.i("info=${tensorInfo},type=$type")*/
                 val values = onnxValue.value as Array<Array<FloatArray>>
                 val outputData = values.flatMap { a -> a.flatMap { b -> listOf(b) } }

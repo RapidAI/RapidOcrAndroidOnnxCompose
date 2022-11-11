@@ -2,7 +2,7 @@ package com.benjaminwan.ocrlibrary.models
 
 import android.graphics.Bitmap
 import android.os.Parcelable
-import kotlinx.android.parcel.Parcelize
+import kotlinx.parcelize.Parcelize
 import org.opencv.core.Point
 
 @Parcelize

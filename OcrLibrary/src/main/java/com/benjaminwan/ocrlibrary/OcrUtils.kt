@@ -157,6 +157,7 @@ internal fun getBox(boxRect: RotatedRect): Array<Point> {
     return points
 }
 
+@OptIn(ExperimentalUnsignedTypes::class)
 internal fun boxScoreFast(boxes: Array<Point>, pred: Mat): Float {
     val width = pred.cols()
     val height = pred.rows()

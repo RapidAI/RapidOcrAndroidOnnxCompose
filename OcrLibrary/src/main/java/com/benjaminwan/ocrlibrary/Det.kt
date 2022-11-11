@@ -18,6 +18,7 @@ class Det(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
         ortEnv.createSession(model)
     }
 
+    @OptIn(ExperimentalUnsignedTypes::class)
     fun getDetResults(src: Mat, s: ScaleParam, boxScoreThresh: Float, boxThresh: Float, unClipRatio: Float): List<DetResult> {
         val srcResize = Mat()
         Imgproc.resize(src, srcResize, Size(s.dstWidth.toDouble(), s.dstHeight.toDouble()))
