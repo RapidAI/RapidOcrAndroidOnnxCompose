@@ -4,6 +4,15 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        ocr {
+            keyAlias 'rapidocr'
+            keyPassword 'rapidocr'
+            storeFile file('../keystore/rapidocr.keystore')
+            storePassword 'rapidocr'
+        }
+    }
+    
     namespace 'com.benjaminwan.ocr'
     compileSdk compile_sdk_version
 
@@ -22,6 +31,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.ocr
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
@@ -43,6 +53,12 @@ android {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
+    }
+        applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                outputFileName = "${rootProject.name}-${defaultConfig.versionName}-${variant.buildType.name}.apk"
+            }
     }
 }
 
