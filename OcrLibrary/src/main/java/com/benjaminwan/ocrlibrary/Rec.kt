@@ -2,7 +2,6 @@ package com.benjaminwan.ocrlibrary
 
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
-import ai.onnxruntime.TensorInfo
 import android.content.res.AssetManager
 import com.benjaminwan.ocrlibrary.models.RecResult
 import org.opencv.core.Mat

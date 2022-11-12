@@ -4,12 +4,7 @@ import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import android.content.res.AssetManager
 import com.benjaminwan.ocrlibrary.models.ClsResult
-import org.opencv.core.CvType.CV_8UC3
 import org.opencv.core.Mat
-import org.opencv.core.Rect
-import org.opencv.core.Scalar
-import org.opencv.core.Size
-import org.opencv.imgproc.Imgproc.resize
 import java.util.*
 
 class Cls(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelName: String) {
@@ -42,22 +37,6 @@ class Cls(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
 
     fun getClsResults(partMats: List<Mat>): List<ClsResult> = partMats.map {
         getClsResult(it)
-    }
-
-    fun adjustToDst(src: Mat, dstWidth: Double, dstHeight: Double): Mat {
-        val srcResize = Mat()
-        val scale = dstHeight / src.rows()
-        val srcWidth = src.cols() * scale
-        resize(src, srcResize, Size(srcWidth, dstHeight))
-        val srcFit = Mat(dstHeight.toInt(), dstWidth.toInt(), CV_8UC3, Scalar(255.0, 255.0, 255.0))
-        if (srcWidth < dstWidth) {
-            val rect = Rect(0, 0, srcResize.cols(), srcResize.rows())
-            srcResize.copyTo(srcFit.submat(rect))
-        } else {
-            val rect = Rect(0, 0, dstWidth.toInt(), dstHeight.toInt())
-            srcResize.submat(rect).copyTo(srcFit)
-        }
-        return srcFit;
     }
 
     companion object {

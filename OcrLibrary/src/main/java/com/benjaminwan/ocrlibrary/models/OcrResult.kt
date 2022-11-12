@@ -9,9 +9,9 @@ import org.opencv.core.Point
 data class OcrResult(
     val detResults: List<DetResult>,
     val clsResults: List<ClsResult>,
-    val clsTime: Double,
     val recResults: List<RecResult>,
     val detTime: Double,
+    val clsTime: Double,
     val recTime: Double,
     val fullTime: Double,
     val boxImage: Bitmap,

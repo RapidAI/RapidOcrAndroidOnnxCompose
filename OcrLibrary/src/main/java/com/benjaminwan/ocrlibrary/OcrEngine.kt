@@ -24,17 +24,11 @@ class OcrEngine(context: Context) : Closeable {
 
     private val ortEnv by lazy { OrtEnvironment.getEnvironment() }
 
-    private val det by lazy {
-        Det(ortEnv, assetManager, DET_NAME)
-    }
+    private val det by lazy { Det(ortEnv, assetManager, DET_NAME) }
 
-    private val cls by lazy {
-        Cls(ortEnv, assetManager, CLS_NAME)
-    }
+    private val cls by lazy { Cls(ortEnv, assetManager, CLS_NAME) }
 
-    private val rec by lazy {
-        Rec(ortEnv, assetManager, REC_NAME, KEYS_NAME)
-    }
+    private val rec by lazy { Rec(ortEnv, assetManager, REC_NAME, KEYS_NAME) }
 
     init {
         if (OpenCVLoader.initDebug()) {

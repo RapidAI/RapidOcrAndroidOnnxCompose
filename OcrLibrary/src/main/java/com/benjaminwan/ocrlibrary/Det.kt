@@ -80,64 +80,55 @@ class Det(private val ortEnv: OrtEnvironment, assetManager: AssetManager, modelN
         Imgproc.findContours(dilateMat, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE)
 
         val numContours = if (contours.size >= maxCandidates) maxCandidates else contours.size
-        //Logger.i("numContours=$numContours")
+
         val rsBoxes: MutableList<DetResult> = mutableListOf()
 
         for (i in (0 until numContours)) {
-            //Logger.i("contours[$i]=${contours[i]}}")
-            //Logger.i("total=${contours[i].total()},elemSize=${contours[i].elemSize()}")
             if (contours[i].elemSize() <= 2) {
                 continue
             }
             val minAreaRect = Imgproc.minAreaRect(MatOfPoint2f(*contours[i].toArray()))
-            //Logger.i("minAreaRect[$i]=${minAreaRect}")
+
             val minBoxes: Array<Point> = Array(4) {
                 Point()
             }
-            //Logger.i("minBoxes1=${minBoxes.contentToString()}")
+
             val longSide: Float = getMinBoxes(minAreaRect, minBoxes)
-            //Logger.i("longSide[$i]=$longSide")
-            //Logger.i("minBoxes[$i]=${minBoxes.contentToString()}")
+
             if (longSide < longSideThresh) {
                 continue
             }
-
+            //-----boxScore-----
             val boxScore: Float = boxScoreFast(minBoxes, predMat)
-            //Logger.i("boxScore[$i]=${boxScore}")
+
             if (boxScore < boxScoreThresh)
                 continue
             //-----unClip-----
             val clipRect: RotatedRect = unClip(minBoxes, unClipRatio)
-            //Logger.i("clipRect[$i]=${clipRect}")
             if (clipRect.size.height < 1.001 && clipRect.size.width < 1.001) {
                 continue
             }
-            //-----unClip-----
             val clipMinBoxes: Array<Point> = Array(4) {
                 Point()
             }
             val clipLongSide = getMinBoxes(clipRect, clipMinBoxes)
-            //Logger.i("clipLongSide[$i]=$clipLongSide")
-            //Logger.i("clipMinBoxes[$i]=${clipMinBoxes.contentToString()}")
             if (clipLongSide < longSideThresh + 2)
                 continue
 
-            val intClipMinBoxes = clipMinBoxes.map { point ->
+            val detPoints = clipMinBoxes.map { point ->
                 val x = point.x / s.ratioWidth
                 val y = point.y / s.ratioHeight
                 val ptX = Math.min(Math.max(x.toInt(), 0), s.srcWidth - 1)
                 val ptY = Math.min(Math.max(y.toInt(), 0), s.srcHeight - 1)
                 DetPoint(ptX, ptY)
             }
-            rsBoxes.add(DetResult(intClipMinBoxes, boxScore))
-            //Logger.i("rsBoxes[$i]=${rsBoxes[i]}")
+            rsBoxes.add(DetResult(detPoints, boxScore))
         }
         return rsBoxes.asReversed()
     }
 
     companion object {
         private val meanValues = floatArrayOf(0.485F * 255F, 0.456F * 255F, 0.406F * 255F)
-
         private val normValues = floatArrayOf(1.0F / 0.229F / 255.0F, 1.0F / 0.224F / 255.0F, 1.0F / 0.225F / 255.0F)
     }
 
