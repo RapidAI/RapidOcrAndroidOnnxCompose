@@ -6,7 +6,7 @@
 <details open>
     <summary>目录</summary>
 
-- [RapidOcrAndroidOnnx](#RapidOcrAndroidOnnx)
+- [RapidOcrAndroidOnnxCompose](#RapidOcrAndroidOnnxCompose)
     - [联系方式](#联系方式)
     - [项目完整源码](#项目完整源码)
     - [APK下载](#APK下载)
