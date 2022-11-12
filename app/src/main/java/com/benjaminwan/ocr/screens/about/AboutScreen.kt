@@ -3,10 +3,8 @@ package com.benjaminwan.ocr.screens.about
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,19 +42,26 @@ fun AboutScreen(navController: NavHostController) {
             AppLogo(Modifier.fillMaxWidth())
             Divider(color = MaterialTheme.colors.onSurface.copy(alpha = .2f))
             Text(text = versionName, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
-            Column(
+            LazyColumn(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.Center,
             ) {
-                RowInfoView(header = "App开源仓库地址", content = appUrl)
+                item {
+                    RowInfoView(header = "作者", content = "https://github.com/benjaminwan")
+                }
+                item {
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                item {
+                    RowInfoView(header = "源码", content = appUrl)
+                }
             }
-            TextButton(
+            Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     context.toClipboard(appUrl)
                 }
             ) {
-                Text(text = "网址复制到剪切板")
+                Text(text = "仓库地址复制到剪切板")
             }
         }
     }
