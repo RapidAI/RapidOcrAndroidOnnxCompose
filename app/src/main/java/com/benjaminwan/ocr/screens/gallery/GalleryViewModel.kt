@@ -2,10 +2,7 @@ package com.benjaminwan.ocr.screens.gallery
 
 import android.content.Context
 import android.net.Uri
-import com.airbnb.mvrx.Fail
-import com.airbnb.mvrx.MavericksViewModelFactory
-import com.airbnb.mvrx.Success
-import com.airbnb.mvrx.ViewModelContext
+import com.airbnb.mvrx.*
 import com.benjaminwan.ocr.app.App
 import com.benjaminwan.ocr.base.BaseViewModel
 import com.benjaminwan.ocr.screens.gallery.GalleryState.Companion.boxScoreThreshRange
@@ -96,12 +93,25 @@ class GalleryViewModel(
         val doCls = state.doCls
         val mostCls = state.mostCls
         withContext(Dispatchers.IO) {
+            /*val count = 10
+            val time = measureTimeMillis {
+                (0 until count).forEach {
+                    ocrEngine.detect(bmp, scaleUp, maxSideLen, padding, boxScoreThresh, boxThresh, unClipRatio, doCls, mostCls)
+                }
+            }
+            Logger.e("平均耗时=${time.toFloat() / count.toFloat()}")*/
             ocrEngine.detect(bmp, scaleUp, maxSideLen, padding, boxScoreThresh, boxThresh, unClipRatio, doCls, mostCls)
         }
     }
         .execute {
-            if (it is Fail) showError(it.error.message.toString())
-            copy(detectRequest = it, selectTab = if (it is Success) GalleryTab.TextResult else selectTab)
+            if (it is Fail) showError(it.error.toString())
+            val select = when (it) {
+                Uninitialized -> tabs.first()
+                is Fail -> tabs.first()
+                is Loading -> tabs.first()
+                is Success -> GalleryTab.TextResult
+            }
+            copy(detectRequest = it, selectTab = select)
         }
 
     fun toClipboard(text: String) {
