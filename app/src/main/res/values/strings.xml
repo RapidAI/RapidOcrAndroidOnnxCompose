@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RapidOcrAndroidOnnxCompose</string>
+    <string name="app_name">捷智识别范例</string>
     <string name="screen_main">主菜单</string>
     <string name="screen_gallery">相册识别</string>
     <string name="screen_camera">相机识别</string>
