@@ -46,14 +46,9 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     //Android
     implementation "androidx.core:core-ktx:$core_version"
-    implementation 'androidx.appcompat:appcompat:1.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
     //Logger
     implementation 'com.orhanobut:logger:2.2.0'
-    //Clipper
-    //implementation 'de.lighti:Clipper:6.4.2'
     //onnxruntime
-    //implementation 'com.microsoft.onnxruntime:onnxruntime:1.13.1'
     implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.13.1'
     //opencv
     implementation project(':opencv')
