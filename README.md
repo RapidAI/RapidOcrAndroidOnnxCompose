@@ -24,7 +24,7 @@
 
 ## 联系方式
 
-* QQ①群：887298230 或 [连接](https://jq.qq.com/?_wv=1027&k=P9b3olx6)
+[QQ群](https://rapidai.github.io/RapidOCRDocs/main/communicate/#qq)
 
 ## 项目完整源码
 
